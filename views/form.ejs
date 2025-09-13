@@ -1,0 +1,30 @@
+<form method="POST" action="<%= schedule ? '/edit/' + schedule._id : '/new' %>">
+  <div class="mb-3">
+    <label class="form-label">Judul</label>
+    <input type="text" class="form-control" name="title" value="<%= schedule ? schedule.title : '' %>" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Deskripsi</label>
+    <textarea class="form-control" name="description"><%= schedule ? schedule.description : '' %></textarea>
+  </div>
+  <div class="mb-3">
+  <label class="form-label">Nama Anak</label>
+  <select class="form-control" name="childName" required>
+    <% children.forEach(c => { %>
+      <option value="<%= c.name %>" <%= schedule && schedule.childName === c.name ? 'selected' : '' %>>
+        <%= c.name %>
+      </option>
+    <% }) %>
+  </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Tanggal & Waktu</label>
+    <input type="datetime-local" class="form-control" name="date" value="<%= schedule ? new Date(schedule.date).toISOString().slice(0,16) : '' %>" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Durasi (menit)</label>
+    <input type="number" class="form-control" name="duration" value="<%= schedule ? schedule.duration : '' %>">
+  </div>
+  <button type="submit" class="btn btn-success">Simpan</button>
+  <a href="/" class="btn btn-secondary">Batal</a>
+</form>

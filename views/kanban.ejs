@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kanban Jadwal Anak</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .kanban-board { display: flex; gap: 20px; }
+    .kanban-column { flex: 1; background: #f8f9fa; border-radius: 8px; padding: 10px; }
+    .kanban-card { background: white; border-radius: 6px; padding: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body class="container py-4">
+  <h1 class="mb-4">📌 Kanban Kegiatan Anak</h1>
+  <a href="/" class="btn btn-secondary mb-3">← Kembali ke Tabel</a>
+  <a href="/new" class="btn btn-primary mb-3">+ Tambah Jadwal</a>
+
+  <div class="kanban-board">
+    <!-- Belum -->
+    <div class="kanban-column">
+      <h4>Belum Dikerjakan</h4>
+      <% schedules.filter(s => s.status === "belum").forEach(s => { %>
+        <div class="kanban-card">
+          <strong><%= s.title %></strong><br>
+          Anak: <%= s.childName %><br>
+          <small><%= new Date(s.date).toLocaleString() %></small>
+          <div class="mt-2">
+            <a href="/status/<%= s._id %>/proses" class="btn btn-sm btn-warning">Sedang Dilakukan</a>
+            <a href="/status/<%= s._id %>/selesai" class="btn btn-sm btn-success">Selesai</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Proses -->
+    <div class="kanban-column">
+      <h4>Sedang Dilakukan</h4>
+      <% schedules.filter(s => s.status === "proses").forEach(s => { %>
+        <div class="kanban-card">
+          <strong><%= s.title %></strong><br>
+          Anak: <%= s.childName %><br>
+          <small><%= new Date(s.date).toLocaleString() %></small>
+          <div class="mt-2">
+            <a href="/status/<%= s._id %>/selesai" class="btn btn-sm btn-success">Selesai</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Selesai -->
+    <div class="kanban-column">
+      <h4>Selesai</h4>
+      <% schedules.filter(s => s.status === "selesai").forEach(s => { %>
+        <div class="kanban-card">
+          <strong><%= s.title %></strong><br>
+          Anak: <%= s.childName %><br>
+          <small><%= new Date(s.date).toLocaleString() %></small>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>

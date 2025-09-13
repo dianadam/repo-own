@@ -1,0 +1,170 @@
+<div class="container mt-5">
+  <h2 class="text-center mb-4">🌙 Prayer Tracker (1 Minggu)</h2>
+
+  <!-- Filter tanggal + anak -->
+  <form class="row g-2 mb-4" method="get" action="/prayer">
+    <div class="col-md-4">
+      <label class="form-label fw-bold">📅 Pilih Tanggal</label>
+      <input type="date" name="date" value="<%= today.format('YYYY-MM-DD') %>" class="form-control">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label fw-bold">👦 Pilih Anak</label>
+      <select name="childId" class="form-select">
+        <option value="">Semua Anak</option>
+        <% allChildren.forEach(c => { %>
+          <option value="<%= c._id %>" <%= childId==c._id.toString() ? "selected" : "" %>><%= c.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
+    </div>
+  </form>
+
+  <!-- Summary Progress per Anak -->
+  <div class="mb-5">
+    <h4>📊 Ringkasan Mingguan</h4>
+    <% children.forEach(child => { 
+         const prayersThisWeek = child.prayers.filter(p => 
+            moment(p.date).isBetween(moment(today).startOf("week"), moment(today).endOf("week"), "day", "[]")
+         );
+         const total = prayersThisWeek.length;
+         const done = prayersThisWeek.filter(p => p.status).length;
+         const percent = total ? Math.round((done / total) * 100) : 0;
+    %>
+      <div class="mb-3">
+        <strong><%= child.name %></strong>
+        <div class="progress" style="height:25px;">
+  <div 
+    class="progress-bar bg-success" 
+    role="progressbar" 
+    style="width: <%= percent %>%;" 
+    data-child-progress="<%= child._id %>"
+    data-total="<%= total %>"
+    data-done="<%= done %>"
+  >
+    <%= percent %>% ( <%= done %> / <%= total %> )
+  </div>
+</div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Checklist harian -->
+  <% for (let i = 0; i < 7; i++) {
+       const currentDate = moment(today).startOf("week").add(i, "days");
+  %>
+    <div class="card shadow mb-3">
+      <div class="card-header">
+        <button class="btn btn-link text-decoration-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#day<%= i %>">
+          📆 <%= currentDate.format("dddd, DD MMMM YYYY") %>
+        </button>
+      </div>
+      <div id="day<%= i %>" class="collapse">
+        <div class="card-body">
+          <% children.forEach(child => { %>
+            <h5 class="mt-2">👦 <%= child.name %></h5>
+            <% child.prayers.filter(p => moment(p.date).isSame(currentDate, "day")).forEach(prayer => { %>
+              <button 
+      class="btn prayer-btn <%= prayer.status ? 'btn-success' : 'btn-danger' %>" 
+      data-child="<%= child._id %>" 
+      data-prayer="<%= prayer._id %>" 
+      data-status="<%= prayer.status %>"
+    >
+      <%= prayer.prayerType %>
+    </button>
+            <% }) %>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.querySelectorAll(".prayer-checkbox").forEach(cb => {
+    cb.addEventListener("change", async (e) => {
+      const childId = e.target.dataset.child;
+      const prayerId = e.target.dataset.prayer;
+      const status = e.target.checked;
+
+      // ✅ Update DB
+      await fetch(`/prayer/update/${childId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prayerId, status })
+      });
+
+      // ✅ Update progress bar tanpa reload
+      const progressBar = document.querySelector(`[data-child-progress='${childId}']`);
+      if (progressBar) {
+        let total = parseInt(progressBar.dataset.total);
+        let done = parseInt(progressBar.dataset.done);
+
+        if (status) {
+          done += 1;
+        } else {
+          done -= 1;
+        }
+
+        const percent = Math.round((done / total) * 100);
+
+        // update dataset
+        progressBar.dataset.done = done;
+
+        // update UI
+        progressBar.style.width = percent + "%";
+        progressBar.textContent = `${percent}% ( ${done} / ${total} )`;
+      }
+    });
+  });
+</script>
+<script>
+  document.querySelectorAll(".prayer-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const childId = btn.dataset.child;
+      const prayerId = btn.dataset.prayer;
+      const currentStatus = btn.dataset.status === "true";
+      const newStatus = !currentStatus;
+
+      // ✅ Update DB
+      await fetch(`/prayer/update/${childId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prayerId, status: newStatus })
+      });
+
+      // ✅ Update button UI
+      btn.dataset.status = newStatus;
+      if (newStatus) {
+        btn.classList.remove("btn-danger");
+        btn.classList.add("btn-success");
+      } else {
+        btn.classList.remove("btn-success");
+        btn.classList.add("btn-danger");
+      }
+
+      // ✅ Update progress bar tanpa reload
+      const progressBar = document.querySelector(`[data-child-progress='${childId}']`);
+      if (progressBar) {
+        let total = parseInt(progressBar.dataset.total);
+        let done = parseInt(progressBar.dataset.done);
+
+        if (newStatus) {
+          done += 1;
+        } else {
+          done -= 1;
+        }
+
+        const percent = Math.round((done / total) * 100);
+
+        progressBar.dataset.done = done;
+        progressBar.style.width = percent + "%";
+        progressBar.textContent = `${percent}% ( ${done} / ${total} )`;
+      }
+    });
+  });
+</script>
+

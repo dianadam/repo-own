@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Jadwal Anak</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .task:hover { cursor: grab; }
+    .dropzone { transition: background 0.3s; }
+    .dropzone.dragover { background: #e9ecef; }
+  </style>
+</head>
+<body>
+  <div class="container my-4">
+
+    <!-- ====== Header ====== -->
+    <h2 class="mb-3">📌 Dashboard Jadwal Anak</h2>
+
+    <p><strong>Tanggal:</strong> <%= result.date %></p>
+    <p><strong>Timezone:</strong> <%= result.timezone %></p>
+
+    <!-- ====== Tabel Jadwal Sholat ====== -->
+    <div class="d-flex justify-content-center mt-2">
+      <table class="table table-hover align-middle text-center shadow rounded-3 overflow-hidden w-50">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col">🕌 Sholat</th>
+            <th scope="col">⏰ Waktu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-info fs-6">Subuh 🌅</span></td>
+            <td><strong><%= result.fajr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-warning text-dark fs-6">Terbit ☀️</span></td>
+            <td><strong><%= result.sunrise || "-" %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-success fs-6">Dzuhur 🕛</span></td>
+            <td><strong><%= result.dhuhr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-secondary fs-6">Ashar 🌤️</span></td>
+            <td><strong><%= result.asr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-danger fs-6">Maghrib 🌇</span></td>
+            <td><strong><%= result.maghrib %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-dark fs-6">Isya 🌌</span></td>
+            <td><strong><%= result.isha %></strong></td>
+          </tr>
+        </tbody>
+      </table>
+	  <table class="table table-hover align-middle text-center shadow rounded-3 overflow-hidden w-50">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col">🕌 Sholat</th>
+            <th scope="col">⏰ Waktu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-info fs-6">Subuh 🌅</span></td>
+            <td><strong><%= result.fajr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-warning text-dark fs-6">Terbit ☀️</span></td>
+            <td><strong><%= result.sunrise || "-" %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-success fs-6">Dzuhur 🕛</span></td>
+            <td><strong><%= result.dhuhr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-secondary fs-6">Ashar 🌤️</span></td>
+            <td><strong><%= result.asr %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-danger fs-6">Maghrib 🌇</span></td>
+            <td><strong><%= result.maghrib %></strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-dark fs-6">Isya 🌌</span></td>
+            <td><strong><%= result.isha %></strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ====== Audio Adhan ====== -->
+    <audio id="Adhan Makkah">
+      <source src="https://islamdownload.net/r/123801/mecca_56_22.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="Adhan Madinah">
+      <source src="https://islamdownload.net/r/123801/adan_madinah_32_16.mp3" type="audio/mpeg">
+    </audio>
+
+    <select id="soundOption" class="form-select w-50 mx-auto mt-3">
+      <option value="Adhan Makkah">Adhan Makkah</option>
+      <option value="Adhan Madinah">Adhan Madinah</option>
+    </select>
+
+    <div class="text-center mt-3">
+      <button class="btn btn-success" onclick="playSelected()">🔊 Play</button>
+      <button class="btn btn-danger" onclick="stopSelected()">⏹ Stop</button>
+    </div>
+
+    <script>
+      function playSelected() {
+        const selected = document.getElementById("soundOption").value;
+        document.querySelectorAll("audio").forEach(a => a.pause());
+        document.getElementById(selected).currentTime = 0;
+        document.getElementById(selected).play();
+      }
+
+      function stopSelected() {
+        document.querySelectorAll("audio").forEach(a => { 
+          a.pause(); 
+          a.currentTime = 0;
+        });
+      }
+    </script>
+
+    <!-- ====== Progress Tahunan Anak ====== -->
+    <div class="card shadow-sm mb-4 mt-4">
+      <div class="card-header bg-primary text-white">
+        📊 Progress Sholat Tahun <%= new Date().getFullYear() %>
+      </div>
+      <div class="card-body">
+        <% progressYear.forEach(p => { %>
+          <div class="mb-3">
+            <strong>👦 <%= p.childName %></strong>
+            <div class="progress" style="height:25px;">
+              <div class="progress-bar bg-success" role="progressbar" 
+                   style="width: <%= p.percent %>%;">
+                <%= p.percent %>% ( <%= p.done %> / <%= p.total %> )
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- ====== Kanban Schedule Drag & Drop ====== -->
+	    <!-- ====== Pilihan Minggu ====== -->
+    <div class="mb-3 d-flex align-items-center">
+      <label for="weekSelect" class="me-2 fw-bold">Pilih Minggu:</label>
+      <form id="weekForm" action="/" method="GET" class="d-flex align-items-center">
+    <select name="week" id="weekSelect" class="form-select" style="width:auto; display:inline-block;">
+      <% weeks.forEach(week => { %>
+        <option value="<%= week %>" <%= week === weekParam ? "selected" : "" %>>Minggu <%= week %></option>
+      <% }) %>
+    </select>
+    <button type="submit" class="btn btn-primary ms-2">Tampilkan</button>
+    <button type="button" class="btn btn-secondary ms-2" onclick="goToThisWeek()">Minggu Ini</button>
+  </form>
+</div>
+
+<script>
+  function goToThisWeek() {
+    const now = new Date();
+    const oneJan = new Date(now.getFullYear(), 0, 1);
+    const numberOfDays = Math.floor((now - oneJan) / (24 * 60 * 60 * 1000));
+    const currentWeek = Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
+    document.getElementById("weekSelect").value = currentWeek;
+    document.getElementById("weekForm").submit();
+  }
+</script>
+    <div class="row">
+      <% ["Belum mulai", "Sedang dilakukan", "Selesai"].forEach(status => { %>
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light text-center fw-bold">
+              <%= status %>
+            </div>
+            <div class="card-body dropzone" data-status="<%= status %>" style="min-height:300px; background:#f8f9fa; border-radius:8px;">
+              <% schedules.filter(s => s.status === status).forEach(s => { %>
+                <div class="task border rounded p-2 mb-2 bg-white shadow-sm" data-id="<%= s._id %>">
+                  <h6>📌 <%= s.title %></h6>
+                  <small>👦 <%= s.childName %></small><br>
+                  <small>🗓️ Mulai: <%= s.Startdate ? s.Startdate.toLocaleDateString("id-ID") : "-" %></small><br>
+                  <small>🏁 Selesai: <%= s.Enddate ? s.Enddate.toLocaleDateString("id-ID") : "-" %></small>
+
+                  <% if (user) { %>
+                    <div class="mt-2 d-flex justify-content-between">
+                      <a href="/edit/<%= s._id %>" class="btn btn-sm btn-warning">✏️</a>
+                      <form action="/delete/<%= s._id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                      </form>
+                    </div>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+  </div>
+
+  <!-- ====== SortableJS ====== -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script>
+    document.querySelectorAll(".dropzone").forEach(zone => {
+      new Sortable(zone, {
+        group: "kanban",
+        animation: 150,
+        ghostClass: "bg-info",
+        onAdd: async function (evt) {
+          const id = evt.item.dataset.id;
+          const newStatus = zone.dataset.status;
+          await fetch(`/update-status/${id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus })
+          });
+        }
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

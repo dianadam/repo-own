@@ -1,0 +1,53 @@
+<h2 class="mb-4">📑 Laporan Progress Anak</h2>
+
+<!-- PROGRESS SHOLAT TAHUNAN -->
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">📊 Progress Sholat Tahun <%= new Date().getFullYear() %></div>
+  <div class="card-body">
+    <% sholatTahunan.forEach(p => { %>
+      <div class="mb-3">
+        <strong>👦 <%= p.childName %></strong>
+        <div class="progress" style="height:25px;">
+          <div class="progress-bar bg-success" style="width:<%= p.percent %>%;">
+            <%= p.percent %>% ( <%= p.done %> / <%= p.total %> )
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<!-- PROGRESS SHOLAT MINGGUAN -->
+<div class="card shadow mb-4">
+  <div class="card-header bg-info text-white">📅 Progress Sholat Minggu Ini</div>
+  <div class="card-body">
+    <% sholatMingguan.forEach(p => { %>
+      <div class="mb-3">
+        <strong>👦 <%= p.childName %></strong>
+        <div class="progress" style="height:25px;">
+          <div class="progress-bar bg-warning" style="width:<%= p.percent %>%;">
+            <%= p.percent %>% ( <%= p.done %> / <%= p.total %> )
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<!-- PROGRESS KEGIATAN -->
+<div class="card shadow mb-4">
+  <div class="card-header bg-success text-white">✅ Progress Kegiatan Anak</div>
+  <div class="card-body">
+    <% kegiatan.forEach(k => { %>
+      <div class="mb-3">
+        <strong>👦 <%= k.childName %></strong>
+        <div class="progress" style="height:25px;">
+          <div class="progress-bar bg-primary" style="width:<%= k.percent %>%;">
+            <%= k.percent %>% ( <%= k.selesai %> / <%= k.total %> )
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
